@@ -4,9 +4,11 @@ let taskInput = document.getElementById('taskInput');
 let tasks = []
 
 newTaskBtn.addEventListener("click",(e)=>{
-    e.preventDefault();
     addTask();
 });
+const saveTasks =()=>{
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+}
 
 function addTask(){
     let text = taskInput.value.trim();
@@ -15,11 +17,41 @@ function addTask(){
         tasks.push({text: text, completed: false});
         taskInput.value= "";
         updateTaskList();
+        updateStats();
+        saveTasks()
     }
     console.log(tasks);
     
 }
+    const toggleTaskComplete =(i)=>{
+        tasks[i].completed = !tasks[i].completed;
+        updateTaskList();
+        updateStats();
+        saveTasks();
+    }
 
+    const deletTask =(i)=>{
+        tasks.splice(i,1);
+        updateTaskList();
+        updateStats();
+        saveTasks();
+    }
+    const editTask =(i)=>{
+        taskInput.value= tasks[i].text;
+        tasks.splice(i,1);
+        updateTaskList();
+        updateStats();
+        saveTasks();
+    }
+   const updateStats=()=>{
+    let completedtasks = tasks.filter(task => task.completed).length;
+    let totaltasks = tasks.length
+    let progress = (completedtasks/totaltasks)*100;
+    let progressBar = document.getElementById('progress');
+    let progressNumbers = document.getElementById('numbers');
+    progressBar.style.width = `${progress}%`;
+    progressNumbers.innerText = `${completedtasks}/${totaltasks}`
+   }
 function updateTaskList(){
     let tasklist = document.getElementById('tasklist');
 
@@ -38,7 +70,7 @@ function updateTaskList(){
       </div>  
        </div>
       `;
-   li.addEventListener("change", ()=>toggleTestComplete(i))
+   li.addEventListener("change", ()=>toggleTaskComplete(i))
       tasklist.appendChild(li)
     })
 }
